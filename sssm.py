@@ -12,7 +12,7 @@ class tradeDirection(enum.Enum):
 
 class Trade:
 
-    def __init__(self, quantity: int, indicator: tradeDirection, price: int) -> None:
+    def __init__(self, quantity: int, price: int, indicator: tradeDirection) -> None:
         # @TODO: input validation
 
         self.quantity = quantity
@@ -21,7 +21,7 @@ class Trade:
         self.timestamp = datetime.datetime.now(datetime.timezone.utc)
 
 
-    def isRecentTrade(self, max_age_seconds: int) -> bool:
+    def isYoungerThan(self, max_age_seconds: int) -> bool:
         now = datetime.datetime.now(datetime.timezone.utc)
         return (now - self.timestamp).total_seconds() <= max_age_seconds
 
@@ -53,11 +53,11 @@ class Stock(abc.ABC):
     def calculateVWSP(self) -> float:
         pass
 
-    def buy(self) -> None:
-        pass
+    def buy(self, quantity: int, price: int) -> None:
+        self.trades.append(Trade(quantity, price, tradeDirection.BUY))
 
-    def sell(self) -> None:
-        pass
+    def sell(self, quantity: int, price: int) -> None:
+        self.trades.append(Trade(quantity, price, tradeDirection.SELL))
 
     @abc.abstractmethod
     def _getName(self) -> str:
