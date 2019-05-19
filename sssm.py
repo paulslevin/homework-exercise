@@ -15,7 +15,12 @@ class tradeDirection(enum.Enum):
 class Trade:
 
     def __init__(self, quantity: int, price: int, indicator: tradeDirection) -> None:
-        # @TODO: input validation
+
+        if (indicator not in tradeDirection):
+            raise TypeError
+
+        if (int(quantity) <= 0 or int(price) <= 0):
+            raise ValueError
 
         self.quantity = quantity
         self.indicator = indicator
@@ -105,24 +110,4 @@ class PreferredStock(Stock):
         return (self.fixed_dividend * self.par_value) / price
 
 
-x = CommonStock('TEA', 0, 100)
-print(x.calculatePERatio(10))
-print(x.calculateDividendYield(10))
-print('x VWSP: ' + str(x.calculateVWSP()))
-print('---')
 
-y = CommonStock('POP', 8, 100)
-print(y.calculatePERatio(10))
-print(y.calculateDividendYield(10))
-
-y.buy(100, 50)
-y.buy(200, 65)
-print('y VWSP: ' + str(y.calculateVWSP()))
-print('---')
-
-z = PreferredStock('GIN', 8, 100, 2)
-print(z.calculatePERatio(10))
-print(z.calculateDividendYield(10))
-z.buy(100, 50)
-z.buy(200, 65)
-print('z VWSP: ' + str(y.calculateVWSP()))
