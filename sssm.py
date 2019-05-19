@@ -6,9 +6,11 @@ import enum
 import abc
 import datetime
 
+
 class tradeDirection(enum.Enum):
-        BUY = 0
-        SELL = 1
+    BUY = 0
+    SELL = 1
+
 
 class Trade:
 
@@ -20,22 +22,20 @@ class Trade:
         self.price = price
         self.timestamp = datetime.datetime.now(datetime.timezone.utc)
 
-
     def isYoungerThan(self, max_age_seconds: int) -> bool:
         now = datetime.datetime.now(datetime.timezone.utc)
         return (now - self.timestamp).total_seconds() <= max_age_seconds
 
+
 class Stock(abc.ABC):
 
-    # 15 minutes in seconds.
-    _VWSP_max_age = 60 * 15
-
-    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int) -> None:
+    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, VWSP_max_age=900) -> None:
         # @TODO: input validation?
 
         self.stock_symbol = stock_symbol
         self.last_dividend = last_dividend
         self.par_value = par_value
+        self.VWSP_mage_age = VWSP_max_age
         self.trades = []
 
     @abc.abstractmethod
@@ -51,7 +51,19 @@ class Stock(abc.ABC):
         return price / self.last_dividend
 
     def calculateVWSP(self) -> float:
-        pass
+        total_quantity = 0
+        total_value = 0
+
+        for trade in self.trades:
+            if trade.isYoungerThan(self.VWSP_mage_age):
+                total_value += trade.price * trade.quantity
+                total_quantity += trade.quantity
+
+        # No trades or all trades too old.
+        if (total_quantity == 0):
+            return 0.0
+
+        return total_value / total_quantity
 
     def buy(self, quantity: int, price: int) -> None:
         self.trades.append(Trade(quantity, price, tradeDirection.BUY))
@@ -92,18 +104,25 @@ class PreferredStock(Stock):
         # @TODO: input validation.
         return (self.fixed_dividend * self.par_value) / price
 
+
 x = CommonStock('TEA', 0, 100)
 print(x.calculatePERatio(10))
 print(x.calculateDividendYield(10))
+print('x VWSP: ' + str(x.calculateVWSP()))
 print('---')
 
 y = CommonStock('POP', 8, 100)
 print(y.calculatePERatio(10))
 print(y.calculateDividendYield(10))
+
+y.buy(100, 50)
+y.buy(200, 65)
+print('y VWSP: ' + str(y.calculateVWSP()))
 print('---')
 
 z = PreferredStock('GIN', 8, 100, 2)
 print(z.calculatePERatio(10))
 print(z.calculateDividendYield(10))
-
-
+z.buy(100, 50)
+z.buy(200, 65)
+print('z VWSP: ' + str(y.calculateVWSP()))
