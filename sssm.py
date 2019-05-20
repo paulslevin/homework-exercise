@@ -1,7 +1,7 @@
 import enum
 import abc
 import datetime
-
+from scipy import stats
 
 class tradeDirection(enum.Enum):
     BUY = 0
@@ -94,10 +94,6 @@ class Stock(abc.ABC):
         # are available to sell given the exercise offers no state of this kind for us to bootstrap from.
         self.trades.append(Trade(quantity, price, tradeDirection.SELL))
 
-    def __str__(self) -> str:
-        return self._getName()
-
-
 class CommonStock(Stock):
 
     def calculateDividendYield(self, price: int) -> float:
@@ -145,6 +141,6 @@ class StockIndex:
         return self.stocks[stock_symbol]
 
     def calculateAllShareIndex(self):
-        pass
+        return stats.gmean([1,2,3])
 
 
