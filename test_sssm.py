@@ -99,7 +99,6 @@ def test_Stock_calculatePERatio_types(stock_symbol, last_dividend, par_value, pr
     with pytest.raises(TypeError):
         stock.calculatePERatio(price)
 
-
 test_params = [
     ('ABC', 0, 10, 0),
     ('ABC', 10, 10, -1)
@@ -123,3 +122,25 @@ def test_Stock_calculatePERatio_valid(stock_symbol, last_dividend, par_value, pr
     stock = Stock(stock_symbol, last_dividend, par_value)
     assert stock.calculatePERatio(price) == result
 
+def test_Stock_calculateVWSP_no_trades():
+    Stock.__abstractmethods__=set()
+    stock = Stock('ABC', 10, 100)
+    assert stock.calculateVWSP() == 0.0
+
+def test_Stock_calculateVWSP_all_trades_too_old():
+    Stock.__abstractmethods__=set()
+    stock = Stock('ABC', 10, 100)
+    stock.buy(100, 50)
+    stock.sell(200, 65)
+
+    for trade in stock.trades:
+        trade.timestamp -= datetime.timedelta(seconds=901)
+
+    assert stock.calculateVWSP() == 0.0
+
+def test_Stock_calculateVWSP_valid():
+    Stock.__abstractmethods__=set()
+    stock = Stock('ABC', 10, 100)
+    stock.buy(100, 50)
+    stock.sell(200, 65)
+    assert stock.calculateVWSP() == 60.0
