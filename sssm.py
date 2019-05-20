@@ -54,8 +54,10 @@ class Stock(abc.ABC):
         self.stock_symbol = stock_symbol
         self.last_dividend = last_dividend
         self.par_value = par_value
-        self.VWSP_mage_age = VWSP_max_age
         self.trades = []
+
+        # Perhaps useful for governance e.g. all trades in the last 24 hours.
+        self.VWSP_max_age = VWSP_max_age
 
     @abc.abstractmethod
     def calculateDividendYield(self, price: int) -> float:
@@ -79,7 +81,7 @@ class Stock(abc.ABC):
         total_value = 0
 
         for trade in self.trades:
-            if trade.isYoungerThan(self.VWSP_mage_age):
+            if trade.isYoungerThan(self.VWSP_max_age):
                 total_value += trade.price * trade.quantity
                 total_quantity += trade.quantity
 
