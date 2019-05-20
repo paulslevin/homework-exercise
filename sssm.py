@@ -88,7 +88,10 @@ class Stock(abc.ABC):
     def buy(self, quantity: int, price: int) -> None:
         self.trades.append(Trade(quantity, price, tradeDirection.BUY))
 
+
     def sell(self, quantity: int, price: int) -> None:
+        # I have made an assumption that there is no need to check that the quantity of shares
+        # are available to sell given the exercise offers no state of this kind for us to bootstrap from.
         self.trades.append(Trade(quantity, price, tradeDirection.SELL))
 
     def __str__(self) -> str:
