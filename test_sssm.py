@@ -144,3 +144,38 @@ def test_Stock_calculateVWSP_valid():
     stock.buy(100, 50)
     stock.sell(200, 65)
     assert stock.calculateVWSP() == 60.0
+
+test_params = [
+    ('ABC', 10, 100, 10.5),
+    ('ABC', 10, 100, '')
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,price", test_params)
+def test_CommonStock_calculateDividendYield_types(stock_symbol, last_dividend, par_value, price):
+    common_stock =  CommonStock(stock_symbol, last_dividend, par_value)
+    with pytest.raises(TypeError):
+        common_stock.calculateDividendYield(price)
+
+
+test_params = [
+    ('ABC', 10, 100, 0),
+    ('ABC', 10, 100, -1)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,price", test_params)
+def test_CommonStock_calculateDividendYield_values(stock_symbol, last_dividend, par_value, price):
+    common_stock =  CommonStock(stock_symbol, last_dividend, par_value)
+    with pytest.raises(ValueError):
+        common_stock.calculateDividendYield(price)
+
+
+test_params = [
+    ('ABC', 8, 100, 2, 4),
+    ('ABC', 8, 100, 10, 0.8),
+    ('ABC', 0, 100, 4, 0)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,price,result", test_params)
+def test_CommonStock_calculateDividendYield_valid(stock_symbol, last_dividend, par_value, price, result):
+    common_stock =  CommonStock(stock_symbol, last_dividend, par_value)
+    assert common_stock.calculateDividendYield(price) == result

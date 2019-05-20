@@ -109,7 +109,12 @@ class CommonStock(Stock):
         return 'Common'
 
     def calculateDividendYield(self, price: int) -> float:
-        # @TODO: input validation
+        if not isinstance(price, int):
+            raise TypeError
+
+        if price <= 0:
+            raise ValueError
+
         return self.last_dividend / price
 
 
