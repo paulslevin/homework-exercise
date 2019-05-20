@@ -2,13 +2,13 @@ import enum
 import abc
 import datetime
 
+
 class tradeDirection(enum.Enum):
     BUY = 0
     SELL = 1
 
 
 class Trade:
-
     def __init__(self, quantity: int, price: int, indicator: tradeDirection) -> None:
 
         if not isinstance(indicator, tradeDirection):
@@ -17,7 +17,7 @@ class Trade:
         if not isinstance(quantity, int) or not isinstance(price, int):
             raise TypeError
 
-        if (int(quantity) <= 0 or int(price) <= 0):
+        if int(quantity) <= 0 or int(price) <= 0:
             raise ValueError
 
         self.quantity = quantity
@@ -31,8 +31,13 @@ class Trade:
 
 
 class Stock(abc.ABC):
-
-    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, VWSP_max_age: int = 900) -> None:
+    def __init__(
+        self,
+        stock_symbol: str,
+        last_dividend: int,
+        par_value: int,
+        VWSP_max_age: int = 900,
+    ) -> None:
 
         if not isinstance(stock_symbol, str):
             raise TypeError
@@ -43,7 +48,7 @@ class Stock(abc.ABC):
         if not len(stock_symbol) == 3:
             raise ValueError
 
-        if (int(last_dividend) < 0 or int(par_value) <= 0):
+        if int(last_dividend) < 0 or int(par_value) <= 0:
             raise ValueError
 
         self.stock_symbol = stock_symbol
@@ -64,7 +69,7 @@ class Stock(abc.ABC):
         if price <= 0:
             raise ValueError
 
-        if (self.last_dividend == 0):
+        if self.last_dividend == 0:
             return 0.0
 
         return price / self.last_dividend
@@ -79,7 +84,7 @@ class Stock(abc.ABC):
                 total_quantity += trade.quantity
 
         # No trades or all trades too old.
-        if (total_quantity == 0):
+        if total_quantity == 0:
             return 0.0
 
         return total_value / total_quantity
@@ -87,14 +92,13 @@ class Stock(abc.ABC):
     def buy(self, quantity: int, price: int) -> None:
         self.trades.append(Trade(quantity, price, tradeDirection.BUY))
 
-
     def sell(self, quantity: int, price: int) -> None:
         # I have made an assumption that there is no need to check that the quantity of shares
         # are available to sell given the exercise offers no state of this kind for us to bootstrap from.
         self.trades.append(Trade(quantity, price, tradeDirection.SELL))
 
-class CommonStock(Stock):
 
+class CommonStock(Stock):
     def calculateDividendYield(self, price: int) -> float:
         if not isinstance(price, int):
             raise TypeError
@@ -106,8 +110,13 @@ class CommonStock(Stock):
 
 
 class PreferredStock(Stock):
-
-    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, fixed_dividend: float) -> None:
+    def __init__(
+        self,
+        stock_symbol: str,
+        last_dividend: int,
+        par_value: int,
+        fixed_dividend: float,
+    ) -> None:
         super().__init__(stock_symbol, last_dividend, par_value)
 
         if not isinstance(fixed_dividend, float):
@@ -130,11 +139,9 @@ class PreferredStock(Stock):
 
 
 class StockIndex:
-
     def __init__(self, name: str, stocks: list) -> None:
         self.name = name
-        self.stocks = {stock.stock_symbol : stock for stock in stocks}
-
+        self.stocks = {stock.stock_symbol: stock for stock in stocks}
 
     def getStock(self, stock_symbol: str) -> Stock:
         return self.stocks[stock_symbol]
