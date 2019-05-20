@@ -1,7 +1,3 @@
-import sys
-
-# sys.version_info >= (3,6)
-
 import enum
 import abc
 import datetime
@@ -95,18 +91,11 @@ class Stock(abc.ABC):
     def sell(self, quantity: int, price: int) -> None:
         self.trades.append(Trade(quantity, price, tradeDirection.SELL))
 
-    @abc.abstractmethod
-    def _getName(self) -> str:
-        pass
-
     def __str__(self) -> str:
         return self._getName()
 
 
 class CommonStock(Stock):
-
-    def _getName(self) -> str:
-        return 'Common'
 
     def calculateDividendYield(self, price: int) -> float:
         if not isinstance(price, int):
@@ -131,12 +120,28 @@ class PreferredStock(Stock):
 
         self.fixed_dividend = fixed_dividend
 
-    def _getName(self) -> str:
-        return 'Preferred'
-
     def calculateDividendYield(self, price: int) -> float:
-        # @TODO: input validation.
-        return (self.fixed_dividend * self.par_value) / price
 
+        if not isinstance(price, int):
+            raise TypeError
+
+        if price <= 0:
+            raise ValueError
+
+        return ((self.fixed_dividend / 100.0) * self.par_value) / price
+
+
+class StockIndex:
+
+    def __init__(self, name: str, stocks: list) -> None:
+        self.name = name
+        self.stocks = {stock.stock_symbol : stock for stock in stocks}
+
+
+    def getStock(self, stock_symbol: str):
+        return self.stocks[stock_symbol]
+
+    def calculateAllShareIndex(self):
+        pass
 
 
