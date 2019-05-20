@@ -38,8 +38,18 @@ class Trade:
 class Stock(abc.ABC):
 
     def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, VWSP_max_age: int = 900) -> None:
-        # @TODO: input validation?
 
+        if not isinstance(stock_symbol, str):
+            raise TypeError
+
+        if not isinstance(last_dividend, int) or not isinstance(par_value, int):
+            raise TypeError
+
+        if not len(stock_symbol) == 3:
+            raise ValueError
+
+        if (int(last_dividend) < 0 or int(par_value) <= 0):
+            raise ValueError
 
         self.stock_symbol = stock_symbol
         self.last_dividend = last_dividend
