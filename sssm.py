@@ -37,7 +37,7 @@ class Trade:
 
 class Stock(abc.ABC):
 
-    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, VWSP_max_age=900) -> None:
+    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, VWSP_max_age: int = 900) -> None:
         # @TODO: input validation?
 
 
