@@ -62,7 +62,12 @@ class Stock(abc.ABC):
         pass
 
     def calculatePERatio(self, price: int) -> float:
-        # @TODO: input validation
+
+        if not isinstance(price, int):
+            raise TypeError
+
+        if price <= 0:
+            raise ValueError
 
         if (self.last_dividend == 0):
             return 0.0

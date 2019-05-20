@@ -87,5 +87,39 @@ def test_Stock_constructor_valid(stock_symbol, last_dividend, par_value):
     Stock.__abstractmethods__=set()
     Stock(stock_symbol, last_dividend, par_value)
 
+test_params = [
+    ('ABC', 0, 10, 10.5),
+    ('ABC', 10, 10, '')
+]
 
-    
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,price", test_params)
+def test_Stock_calculatePERatio_types(stock_symbol, last_dividend, par_value, price):
+    Stock.__abstractmethods__=set()
+    stock = Stock(stock_symbol, last_dividend, par_value)
+    with pytest.raises(TypeError):
+        stock.calculatePERatio(price)
+
+
+test_params = [
+    ('ABC', 0, 10, 0),
+    ('ABC', 10, 10, -1)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,price", test_params)
+def test_Stock_calculatePERatio_values(stock_symbol, last_dividend, par_value, price):
+    Stock.__abstractmethods__=set()
+    stock = Stock(stock_symbol, last_dividend, par_value)
+    with pytest.raises(ValueError):
+        stock.calculatePERatio(price)
+
+test_params = [
+    ('ABC', 0, 10, 10, 0),
+    ('ABC', 10, 10, 10, 1)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,price,result", test_params)
+def test_Stock_calculatePERatio_valid(stock_symbol, last_dividend, par_value, price, result):
+    Stock.__abstractmethods__=set()
+    stock = Stock(stock_symbol, last_dividend, par_value)
+    assert stock.calculatePERatio(price) == result
+
