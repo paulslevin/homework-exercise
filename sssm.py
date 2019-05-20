@@ -16,7 +16,10 @@ class Trade:
 
     def __init__(self, quantity: int, price: int, indicator: tradeDirection) -> None:
 
-        if (indicator not in tradeDirection):
+        if not isinstance(indicator, tradeDirection):
+            raise TypeError
+
+        if not isinstance(quantity, int) or not isinstance(price, int):
             raise TypeError
 
         if (int(quantity) <= 0 or int(price) <= 0):
@@ -36,6 +39,7 @@ class Stock(abc.ABC):
 
     def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, VWSP_max_age=900) -> None:
         # @TODO: input validation?
+
 
         self.stock_symbol = stock_symbol
         self.last_dividend = last_dividend
