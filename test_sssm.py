@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from sssm import Trade
@@ -24,4 +26,15 @@ def test_Trade_constructor_types():
     with pytest.raises(TypeError):
         Trade(10, 10, 'NOT IN ENUM')
 
+def test_Trade_constructor_valid():
+    Trade(10,10, tradeDirection.BUY)
+
+def test_Trade_isYoungerThan_true():
+    trade = Trade(10, 10, tradeDirection.BUY)
+    assert trade.isYoungerThan(10) == True
+
+def test_Trade_isYoungerThan_false():
+    trade = Trade(10, 10, tradeDirection.BUY)
+    trade.timestamp = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=11)
+    assert trade.isYoungerThan(10) == False
 
