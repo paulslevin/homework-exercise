@@ -120,10 +120,15 @@ class CommonStock(Stock):
 
 class PreferredStock(Stock):
 
-    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, fixed_dividend: int) -> None:
+    def __init__(self, stock_symbol: str, last_dividend: int, par_value: int, fixed_dividend: float) -> None:
         super().__init__(stock_symbol, last_dividend, par_value)
 
-        # @TODO: additional input validation.
+        if not isinstance(fixed_dividend, float):
+            raise TypeError
+
+        if fixed_dividend < 0 or fixed_dividend > 100:
+            raise ValueError
+
         self.fixed_dividend = fixed_dividend
 
     def _getName(self) -> str:

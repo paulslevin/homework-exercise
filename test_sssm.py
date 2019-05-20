@@ -179,3 +179,34 @@ test_params = [
 def test_CommonStock_calculateDividendYield_valid(stock_symbol, last_dividend, par_value, price, result):
     common_stock =  CommonStock(stock_symbol, last_dividend, par_value)
     assert common_stock.calculateDividendYield(price) == result
+
+
+test_params = [
+    ('ABC', 8, 100, ''),
+    ('ABC', 8, 100, 1)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend", test_params)
+def test_PreferredStock_constructor_types(stock_symbol, last_dividend, par_value, fixed_dividend):
+    with pytest.raises(TypeError):
+        PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
+
+test_params = [
+    ('ABC', 8, 100, -1.5),
+    ('ABC', 8, 100, 5),
+    ('ABC', 8, 100, 101.0)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend", test_params)
+def test_PreferredStock_constructor_values(stock_symbol, last_dividend, par_value, fixed_dividend):
+    with pytest.raises(ValueError):
+        PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
+
+test_params = [
+    ('ABC', 8, 100, 0.0),
+    ('ABC', 8, 100, 5.0)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend", test_params)
+def test_PreferredStock_constructor_values(stock_symbol, last_dividend, par_value, fixed_dividend):
+    PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
