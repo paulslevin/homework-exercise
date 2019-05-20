@@ -54,10 +54,8 @@ class Stock(abc.ABC):
         self.stock_symbol = stock_symbol
         self.last_dividend = last_dividend
         self.par_value = par_value
-        self.trades = []
-
-        # Perhaps useful for governance e.g. all trades in the last 24 hours.
         self.VWSP_max_age = VWSP_max_age
+        self.trades = []
 
     @abc.abstractmethod
     def calculateDividendYield(self, price: int) -> float:
