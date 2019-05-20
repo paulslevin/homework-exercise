@@ -34,11 +34,11 @@ def test_Trade_constructor_types(quantity, price, indicator):
 def test_Trade_constructor_valid():
     Trade(10,10, tradeDirection.BUY)
 
-def test_Trade_isYoungerThan_true():
+def test_Trade_isYoungerThan_younger():
     trade = Trade(10, 10, tradeDirection.BUY)
     assert trade.isYoungerThan(10) == True
 
-def test_Trade_isYoungerThan_false():
+def test_Trade_isYoungerThan_older():
     trade = Trade(10, 10, tradeDirection.BUY)
     trade.timestamp = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=11)
     assert trade.isYoungerThan(10) == False
