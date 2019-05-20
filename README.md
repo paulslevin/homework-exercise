@@ -26,7 +26,7 @@ to be revisited in the real world.
 
 ## Why Python 3?
 
-Python 3 felt like a good fairly safe bet given this role is to build the next generation of credit
+Python 3 felt like a safe bet given this role is to build the next generation of credit
 systems and Python 2 is getting close to end of life.
 
 ## Authors' Python knowledge
