@@ -210,3 +210,78 @@ test_params = [
 @pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend", test_params)
 def test_PreferredStock_constructor_values(stock_symbol, last_dividend, par_value, fixed_dividend):
     PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
+
+
+test_params = [
+    ('ABC', 8, 100, 0.0, ''),
+    ('ABC', 8, 100, 5.0, 1.5)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend,price", test_params)
+def test_PreferredStock_calculateDividendYield_types(stock_symbol, last_dividend, par_value, fixed_dividend, price):
+    preferred_stock = PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
+    with pytest.raises(TypeError):
+        preferred_stock.calculateDividendYield(price)
+
+
+test_params = [
+    ('ABC', 8, 100, 0.0, 0),
+    ('ABC', 8, 100, 5.0, -1)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend,price", test_params)
+def test_PreferredStock_calculateDividendYield_values(stock_symbol, last_dividend, par_value, fixed_dividend, price):
+    preferred_stock = PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
+    with pytest.raises(ValueError):
+        preferred_stock.calculateDividendYield(price)
+
+
+test_params = [
+    ('ABC', 8, 100, 0.0, 5, 0),
+    ('ABC', 8, 100, 5.0, 5, 1),
+    ('ABC', 8, 200, 10.0, 2, 10)
+]
+
+@pytest.mark.parametrize("stock_symbol,last_dividend,par_value,fixed_dividend,price,result", test_params)
+def test_PreferredStock_calculateDividendYield_valid(stock_symbol, last_dividend, par_value, fixed_dividend, price, result):
+    preferred_stock = PreferredStock(stock_symbol, last_dividend, par_value, fixed_dividend)
+    assert preferred_stock.calculateDividendYield(price) == result
+
+def test_StockIndex_calculateAllShareIndex_zero_trades():
+    stocks = [
+        CommonStock('TEA', 0, 100),
+        CommonStock('POP', 8, 100),
+    ]
+
+    index = StockIndex('test index', stocks)
+
+    assert index.calculateAllShareIndex() == 0
+
+def test_StockIndex_calculateAllShareIndex_one_stock_zero_trades():
+    stocks = [
+        CommonStock('TEA', 0, 100),
+        CommonStock('POP', 8, 100),
+    ]
+
+    index = StockIndex('test index', stocks)
+    index.getStock('TEA').buy(80, 1)
+    index.getStock('TEA').buy(20, 4)
+
+    assert index.calculateAllShareIndex() == 0
+
+def test_StockIndex_calculateAllShareIndex_valid():
+    stocks = [
+        CommonStock('TEA', 0, 100),
+        CommonStock('POP', 8, 100),
+    ]
+
+    index = StockIndex('test index', stocks)
+    index.getStock('TEA').buy(80, 1)
+    index.getStock('TEA').buy(20, 4)
+
+    index.getStock('POP').buy(5, 3)
+    index.getStock('POP').buy(5, 12)
+
+    assert index.calculateAllShareIndex() == 3.4641016151377544
+
+

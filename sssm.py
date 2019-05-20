@@ -1,7 +1,6 @@
 import enum
 import abc
 import datetime
-from scipy import stats
 
 class tradeDirection(enum.Enum):
     BUY = 0
@@ -137,10 +136,15 @@ class StockIndex:
         self.stocks = {stock.stock_symbol : stock for stock in stocks}
 
 
-    def getStock(self, stock_symbol: str):
+    def getStock(self, stock_symbol: str) -> Stock:
         return self.stocks[stock_symbol]
 
-    def calculateAllShareIndex(self):
-        return stats.gmean([1,2,3])
+    def calculateAllShareIndex(self) -> int:
+        # For real systems you would import scipy or similar but there is value in keeping
+        # this homework exercise free of external dependencies where possible.
 
+        total = 1
+        for stock in self.stocks.values():
+            total *= stock.calculateVWSP()
 
+        return total ** (1 / len(self.stocks))
