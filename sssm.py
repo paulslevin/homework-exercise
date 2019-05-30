@@ -1,157 +1,144 @@
+# The name of this package makes it hard to understand its purpose.
+# Something like super_simple_stocks.py is better than sssm.py
+
 import enum
 import abc
 import datetime
 
-
-class tradeDirection(enum.Enum):
+# All Python classes should use UpperCamelCase
+class TradeDirection(enum.Enum):
     BUY = 0
     SELL = 1
 
+# You ended up doing the same price check over and over. might be a good
+# idea to use a decorator to do this
+def positive_price_check(f):
+    def wrapper(*args, **kwargs):
+        price = kwargs.get('price')
+        if price <= 0:
+            raise ValueError('Positive price must be provided.')
+        return f(*args, **kwargs)
+    return wrapper
 
+
+# You don't really need to specify the type. Python allows polymorphism
 class Trade:
-    def __init__(self, quantity: int, price: int, indicator: tradeDirection) -> None:
+    @positive_price_check
+    def __init__(self, quantity, price, indicator):
 
-        if not isinstance(indicator, tradeDirection):
-            raise TypeError
+        # Same here, this is unnecessary. If you try to create a Stock object
+        # and pass in the wrong type, Python will already raise a TypeError
+        # if you do something unexpected with it.
 
-        if not isinstance(quantity, int) or not isinstance(price, int):
-            raise TypeError
-
-        if int(quantity) <= 0 or int(price) <= 0:
-            raise ValueError
+        # Explicit is better than implicit. Also no need to call int.
+        if quantity <= 0:
+            raise ValueError('Positive quantity must be provided.')
 
         self.quantity = quantity
         self.indicator = indicator
         self.price = price
         self.timestamp = datetime.datetime.now(datetime.timezone.utc)
 
-    def isYoungerThan(self, max_age_seconds: int) -> bool:
+    # Python methods should follow snake_case
+    def is_younger_than(self, max_age_seconds: int) -> bool:
         now = datetime.datetime.now(datetime.timezone.utc)
         return (now - self.timestamp).total_seconds() <= max_age_seconds
 
 
 class Stock(abc.ABC):
-    def __init__(
-        self,
-        stock_symbol: str,
-        last_dividend: int,
-        par_value: int,
-        VWSP_max_age: int = 900,
-    ) -> None:
+    # Strangely formatted compared to the other methods
+    # What is VWSP?
+    # VWSP should be lower case
+    def __init__(self, stock_symbol, last_dividend, par_value, vwsp_max_age):
 
-        if not isinstance(stock_symbol, str):
-            raise TypeError
+        # Better to use not equal comparison, and again be explicit
+        if len(stock_symbol) != 3:
+            raise ValueError('Stock symbol needs to be 3 characters.')
 
-        if not isinstance(last_dividend, int) or not isinstance(par_value, int):
-            raise TypeError
+        if last_dividend < 0:
+            raise ValueError('Last dividend must be non-negative.')
 
-        if not len(stock_symbol) == 3:
-            raise ValueError
-
-        if int(last_dividend) < 0 or int(par_value) <= 0:
-            raise ValueError
+        if par_value <= 0:
+            raise ValueError('Par value must be positive.')
 
         self.stock_symbol = stock_symbol
         self.last_dividend = last_dividend
         self.par_value = par_value
-        self.VWSP_max_age = VWSP_max_age
+        self.vwsp_max_age = vwsp_max_age
         self.trades = []
 
+    # Snake case
     @abc.abstractmethod
-    def calculateDividendYield(self, price: int) -> float:
+    def calculate_dividend_yield(self, price):
         pass
 
-    def calculatePERatio(self, price: int) -> float:
+    @positive_price_check
+    def calculate_per_ratio(self, price):
 
-        if not isinstance(price, int):
-            raise TypeError
-
-        if price <= 0:
-            raise ValueError
-
-        if self.last_dividend == 0:
+        # better to just use not than do a zero comparison
+        if not self.last_dividend:
             return 0.0
 
         return price / self.last_dividend
 
-    def calculateVWSP(self) -> float:
+    def calculate_vwsp(self) -> float:
         total_quantity = 0
         total_value = 0
 
         for trade in self.trades:
-            if trade.isYoungerThan(self.VWSP_max_age):
+            if trade.is_younger_than(self.vwsp_max_age):
                 total_value += trade.price * trade.quantity
                 total_quantity += trade.quantity
 
         # No trades or all trades too old.
-        if total_quantity == 0:
+        if not total_quantity:
             return 0.0
 
         return total_value / total_quantity
 
-    def buy(self, quantity: int, price: int) -> None:
-        self.trades.append(Trade(quantity, price, tradeDirection.BUY))
+    def buy(self, quantity, price):
+        self.trades.append(Trade(quantity, price, TradeDirection.BUY))
 
-    def sell(self, quantity: int, price: int) -> None:
+    def sell(self, quantity, price):
         # I have made an assumption that there is no need to check that the quantity of shares
         # are available to sell given the exercise offers no state of this kind for us to bootstrap from.
-        self.trades.append(Trade(quantity, price, tradeDirection.SELL))
+        self.trades.append(Trade(quantity, price, TradeDirection.SELL))
 
 
 class CommonStock(Stock):
-    def calculateDividendYield(self, price: int) -> float:
-        if not isinstance(price, int):
-            raise TypeError
-
-        if price <= 0:
-            raise ValueError
-
+    @positive_price_check
+    def calculate_dividend_yield(self, price):
         return self.last_dividend / price
 
 
 class PreferredStock(Stock):
-    def __init__(
-        self,
-        stock_symbol: str,
-        last_dividend: int,
-        par_value: int,
-        fixed_dividend: float,
-    ) -> None:
+    def __init__(self, stock_symbol, last_dividend, par_value, fixed_dividend):
         super().__init__(stock_symbol, last_dividend, par_value)
 
-        if not isinstance(fixed_dividend, float):
-            raise TypeError
-
-        if fixed_dividend < 0 or fixed_dividend > 100:
-            raise ValueError
+        if not 0 <= fixed_dividend <= 100:
+            raise ValueError('fixed_dividend must be in the range [0, 100]')
 
         self.fixed_dividend = fixed_dividend
 
-    def calculateDividendYield(self, price: int) -> float:
-
-        if not isinstance(price, int):
-            raise TypeError
-
-        if price <= 0:
-            raise ValueError
-
+    @positive_price_check
+    def calculate_dividend_yield(self, price):
         return ((self.fixed_dividend / 100.0) * self.par_value) / price
 
 
 class StockIndex:
-    def __init__(self, name: str, stocks: list) -> None:
+    def __init__(self, name, stocks):
         self.name = name
         self.stocks = {stock.stock_symbol: stock for stock in stocks}
 
-    def getStock(self, stock_symbol: str) -> Stock:
+    def get_Stock(self, stock_symbol):
         return self.stocks[stock_symbol]
 
-    def calculateAllShareIndex(self) -> int:
+    def calculate_all_share_index(self):
         # For real systems you would import scipy or similar but there is value in keeping
         # this homework exercise free of external dependencies where possible.
 
         total = 1
         for stock in self.stocks.values():
-            total *= stock.calculateVWSP()
+            total *= stock.calculate_vwsp()
 
         return total ** (1 / len(self.stocks))
